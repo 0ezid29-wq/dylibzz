@@ -11,8 +11,9 @@ NSString *hooked_pathForResourceOfTypeInDirectory(NSBundle *self, SEL _cmd, NSSt
     NSString *documentsDirectory = [paths firstObject];
 
 
-    // If the app tries to load scripts.img or scripts.dir, redirect to BullyOrig/Scripts/ in Documents
-    if (([name isEqualToString:@"scripts"] && ([ext isEqualToString:@"img"] || [ext isEqualToString:@"dir"]))) {
+
+    // If the app tries to load BullyOrig/Scripts/scripts.img or scripts.dir, redirect to Documents if present
+    if (([name isEqualToString:@"scripts"] && ([ext isEqualToString:@"img"] || [ext isEqualToString:@"dir"])) && [subpath containsString:@"BullyOrig/Scripts"]) {
         NSString *customPath = [[documentsDirectory stringByAppendingPathComponent:@"BullyOrig/Scripts/"] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@", name, ext]];
         if ([[NSFileManager defaultManager] fileExistsAtPath:customPath]) {
             return customPath;
