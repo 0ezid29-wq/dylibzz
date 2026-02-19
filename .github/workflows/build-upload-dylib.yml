@@ -1,0 +1,27 @@
+name: Build and Upload Dylib
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-dylib:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install clang and make
+        run: sudo apt-get update && sudo apt-get install -y clang make
+
+      - name: Build dylib (Linux .so for CI)
+        run: |
+          cd DylibInject
+          clang -shared -fPIC -o DylibInject.so DylibInject.m -lobjc -lFoundation
+
+      - name: Upload dylib artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DylibInject.so
+          path: DylibInject/DylibInject.so
