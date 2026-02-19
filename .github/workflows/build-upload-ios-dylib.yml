@@ -1,0 +1,24 @@
+name: Build and Upload iOS Dylib
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-dylib:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build iOS dylib (arm64)
+        run: |
+          cd DylibInject
+          xcrun --sdk iphoneos clang -dynamiclib -arch arm64 -isysroot $(xcrun --sdk iphoneos --show-sdk-path) -framework Foundation -fobjc-arc DylibInject.m -o DylibInject.dylib
+
+      - name: Upload dylib artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DylibInject.dylib
+          path: DylibInject/DylibInject.dylib
