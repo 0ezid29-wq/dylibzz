@@ -4,15 +4,21 @@
 // Function pointer for the original implementation
 static NSString *(*orig_pathForResourceOfTypeInDirectory)(NSBundle *, SEL, NSString *, NSString *, NSString *);
 
+
 NSString *hooked_pathForResourceOfTypeInDirectory(NSBundle *self, SEL _cmd, NSString *name, NSString *ext, NSString *subpath) {
     // Get Documents directory path
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths firstObject];
-    NSString *customPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@", name, ext]];
-    
-    if ([[NSFileManager defaultManager] fileExistsAtPath:customPath]) {
-        return customPath;
+
+
+    // If the app tries to load scripts.img or scripts.dir, redirect to BullyOrig/Scripts/ in Documents
+    if (([name isEqualToString:@"scripts"] && ([ext isEqualToString:@"img"] || [ext isEqualToString:@"dir"]))) {
+        NSString *customPath = [[documentsDirectory stringByAppendingPathComponent:@"BullyOrig/Scripts/"] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@", name, ext]];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:customPath]) {
+            return customPath;
+        }
     }
+
     // Fallback to original
     return orig_pathForResourceOfTypeInDirectory(self, _cmd, name, ext, subpath);
 }
